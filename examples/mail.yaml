@@ -1,0 +1,57 @@
+---
+classes:
+  - apt
+  - mailserver
+
+apt::sources:
+  jessie-backport:
+    location: "http://ftp.debian.org/debian"
+    release:  "jessie-backports"
+    repos: main contrib
+
+mailserver::ssl_cert: /etc/ssl/public/wildcard.example.net.crt
+mailserver::ssl_ca: /etc/ssl/public/wildcard.example.net.crt
+mailserver::ssl_key: /etc/ssl/private/wildcard.example.net.key
+
+mailserver::doveadm_password: doveadm_password_example_change_me
+mailserver::domain: example.net
+mailserver::mynetworks:
+  - 203.0.113.1/32
+  - 203.0.113.2/32
+  - "[2001:db8::1]/56"
+  - "[2001:db8::2]/56"
+mailserver::postmaster_address: postmaster@example.net
+mailserver::postmapfiles:
+  sender_access: |
+    test-bypass@example.net OK
+  recipient_access: |
+    atelier@example.net OK
+  recipient_bcc: ""
+mailserver::aliases: |
+  postmaster:    root
+  webmaster:    root
+  clamav: atelier
+  root: atelier
+  admin: atelier
+
+mailserver::accounts: >
+    atelier@example.net:{PLAIN}password:::::::
+
+mailserver::opendkim_keys:
+    example.net: >
+        -----BEGIN RSA PRIVATE KEY-----
+        MIICXAIBAAKBgQDYWDu7SIqyNar57tlb3d3tHQ5tL/HY07Jf4VtukHQgPugwohQO
+        iP/X0U/B61T9Sef2vQ/pHQiquruRKnqBbxsQavOCXRbhZqGvZOcoLOSXm73hKnc/
+        a3YF674RU5vCfATZNSyGFRzy7RJhg7os3Y8xSUmigpIfYz9t6+HtIqf75wIDAQAB
+        AoGAf1O2m+v+zRGu9ffv7xRuJ75BHlvoX6+APNPaRwE3hz7e0rihS0iwIqmq4juJ
+        wqS7o8jz00PmNO0/tRkmDoWAjByjm7hqVBx6+xpw5hx04J8/4tHmhREz6lxPduti
+        vgkKzfgmQgaW7FEZrNn7WLKv33uAXRTlgdFIxc4jlWhf/QkCQQD42BjrlFkNkbEb
+        FUER6ET2QfZXQE894AhUKOan5/K2L9+oTXJPb3uGL+tOIpWT1aIoT9W284i+eEDs
+        D1ZIHH0NAkEA3pDi6LSXxGWwFJqDLLoJmPg/9D0VmZXH9nfNdcqYEaYR/Ql8uc+P
+        1u6wCLy7/2RdME77wgL9a7Ob5j2YhRbnwwJAcjDoLqLiwsFKnn0AYTFPBBp86skO
+        E/zMlaI3RnHABS6u2dLAVAd6jbdLqY1hSnfMc+c+0TesVotkb28STwETuQJBANWR
+        4qu64AeuLJEY09cPjjYjwfr0ws1mVUPFIntttQ76dTiC6hTDgBuXX4SC10PzYxkA
+        McWyaMv4xhjh8oGDwVECQAmKCp2Dwm6wM93t3PyJh4AQyar8MHJjV2pDL0ztuEaK
+        dvGmIrZJUzk8N9RxThGOlXi8rCSGaTq969ouna4qfT4=
+        -----END RSA PRIVATE KEY-----
+

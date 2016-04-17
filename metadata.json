@@ -1,0 +1,15 @@
+{
+  "name": "mailserver",
+  "version": "1.0.0",
+  "author": "sileht",
+  "summary": null,
+  "license": "Apache 2.0",
+  "source": "https://github.com/sileht/puppet-mailserver",
+  "project_page": "https://github.com/sileht/puppet-mailserver",
+  "issues_url": "https://github.com/sileht/puppet-mailserver/issues",
+  "dependencies": [
+    {"name":"puppetlabs-stdlib","version_requirement":">= 2.0.0"},
+    {"name":"puppetlabs-apt","version_requirement":">= 2.0.0"}
+  ]
+}
+
