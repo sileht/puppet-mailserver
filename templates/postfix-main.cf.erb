@@ -108,7 +108,12 @@ smtpd_relay_restrictions = permit_mynetworks,
      permit_sasl_authenticated,
      defer_unauth_destination
 
-relay_domains = 
+<% if @relay_domains -%>
+relay_domains = $mydestination, <%= @relay_domains.join(',') %>
+<% else %>
+relay_domains =
+<% end -%>
+
 
 
 # rspamd
@@ -117,3 +122,7 @@ smtpd_milters = inet:127.0.0.1:10030
 non_smtpd_milters = inet:127.0.0.1:10030
 milter_protocol = 6
 milter_mail_macros = i {mail_addr} {client_addr} {client_name} {auth_authen}
+
+<% @postfix_options.each do |option| -%>
+    <%= option %>
+<% end -%>

@@ -1,13 +1,20 @@
 .include /etc/rmilter.conf.common
 bind_socket = inet:10030@127.0.0.1;
 tempdir = /dev/shm;
-our_networks => "127.0.0.0/8,[::ffff:127.0.0.0]/104,[::1]/128,<%= @mynetworks.join(',') %>";
+our_networks = 127.0.0.0/8, [::ffff:127.0.0.0]/104,[::1]/128,<%= @mynetworks.join(',') %>;
+whitelist = <%= @rmilter_recipients_whitelist.join(',') %>
+
 spamd {
+    whitelist = 127.0.0.0/8,[::ffff:127.0.0.0]/104,[::1]/128,<%= @mynetworks.join(',') %>;
     spamd_never_reject = yes;
-#    spamd_temp_fail = yes;
+    spamd_soft_fail = yes;
+    spamd_greylist = yes;
     extended_spam_headers = yes;
 }
 clamav {
     servers = "127.0.0.1:10031";
 }
 
+greylisting {
+    whitelist = 127.0.0.0/8,[::ffff:127.0.0.0]/104,[::1]/128,<%= @mynetworks.join(',') %>;
+}

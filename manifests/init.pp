@@ -12,11 +12,17 @@ class mailserver (
   $ssl_key,
   $disable_plaintext_auth = true,
   $use_solr_indexer = false,
+  $rmilter_recipients_whitelist = [],
   $opendkim_keys = {},
   $postmap_datas = {},
+  $postfix_options = {},
+  $relay_domain = undef,
+  $transports = "",
 ){
 
 
+  validate_array($rmilter_recipients_whitelist)
+  validate_rmilter_recipients_whitelist{$rmilter_recipients_whitelist:}
   validate_array($mynetworks)
   validate_mynetworks{$mynetworks:}
   validate_string($domain)
@@ -24,6 +30,7 @@ class mailserver (
   validate_re($postmaster_address, '^.*@.*\..*')
   validate_hash($opendkim_keys)
   validate_hash($postmap_datas)
+  validate_hash($postfix_options)
   validate_bool($use_solr_indexer)
   validate_bool($disable_plaintext_auth)
   validate_absolute_path($ssl_ca)
@@ -147,7 +154,7 @@ filters = "chartable,dkim,spf,rbl,emails,surbl,regexp,fuzzy_check,ratelimit,phis
     notify  => Service['rspamd'],
   }
 
-  quick_files{['main.cf', 'master.cf', 'transport']:
+  quick_files{['main.cf', 'master.cf']:
     path => "/etc/postfix", tpath => "mailserver/postfix-",
     notify  => Service['postfix'],
     require => Package['postfix'],
@@ -173,6 +180,11 @@ filters = "chartable,dkim,spf,rbl,emails,surbl,regexp,fuzzy_check,ratelimit,phis
     subscribe => File['/etc/aliases'],
     creates => '/etc/aliases.db',
     notify => Service['postfix'],
+    require => Package['postfix'],
+  }
+  file{'/etc/postfix/transport':
+    content => $transports,
+    notify  => Service['postfix'],
     require => Package['postfix'],
   }
 
@@ -306,3 +318,6 @@ define validate_mynetworks(){
     validate_ip_address($name)
 }
 
+define validate_rmilter_recipients_whitelist(){
+  validate_re($name, '^.*@.*\..*')
+}
