@@ -154,6 +154,10 @@ filters = "chartable,dkim,spf,rbl,emails,surbl,regexp,fuzzy_check,ratelimit,phis
     notify  => Service['rspamd'],
   }
 
+  file{"/etc/rspamd/lua":
+    ensure => directory
+  }
+
   quick_files{['main.cf', 'master.cf']:
     path => "/etc/postfix", tpath => "mailserver/postfix-",
     notify  => Service['postfix'],
