@@ -13,7 +13,7 @@ disable_plaintext_auth = yes
 disable_plaintext_auth = no
 <% end -%>
 
-auth_default_realm = <%= @domain %>
+auth_default_realm = <%= @domains[0] %>
 
 mail_location = maildir:/var/mail/%u
 maildir_very_dirty_syncs = yes   # Assume that only Dovecot accesses cur/ directory.

@@ -14,7 +14,8 @@ mailserver::ssl_ca: /etc/ssl/public/wildcard.example.net.crt
 mailserver::ssl_key: /etc/ssl/private/wildcard.example.net.key
 
 mailserver::doveadm_password: doveadm_password_example_change_me
-mailserver::domain: example.net
+mailserver::domains:
+  - example.net
 mailserver::mynetworks:
   - 203.0.113.1/32
   - 203.0.113.2/32

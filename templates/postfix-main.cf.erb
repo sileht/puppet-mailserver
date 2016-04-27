@@ -44,7 +44,7 @@ smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
 # use maildir
 mail_spool_directory = /var/mail/
 virtual_transport = dovecot
-virtual_mailbox_domains = <%= @domain %>
+virtual_mailbox_domains = <%= @domains.join(",") %>
 virtual_alias_maps = hash:/etc/aliases
 dovecot_destination_recipient_limit = 1
 
@@ -70,7 +70,7 @@ smtpd_sasl_auth_enable = yes
 smtpd_sasl_type = dovecot
 smtpd_sasl_path = private/auth
 smtpd_sasl_security_options = noanonymous
-smtpd_sasl_local_domain = <%= @domain %>
+smtpd_sasl_local_domain = <%= @domains[0] %>
 
 disable_vrfy_command = yes
 smtpd_helo_required = yes

@@ -1,6 +1,6 @@
 
 class mailserver (
-  $domain,
+  $domains,
   $mynetworks,
   $accounts,
   $aliases,
@@ -25,7 +25,7 @@ class mailserver (
   validate_rmilter_recipients_whitelist{$rmilter_recipients_whitelist:}
   validate_array($mynetworks)
   validate_mynetworks{$mynetworks:}
-  validate_string($domain)
+  validate_array($domains)
   validate_string($postmaster_address)
   validate_re($postmaster_address, '^.*@.*\..*')
   validate_hash($opendkim_keys)
@@ -172,7 +172,7 @@ filters = "chartable,dkim,spf,rbl,emails,surbl,regexp,fuzzy_check,ratelimit,phis
   }
 
   file{'/etc/mailname':
-    content => $domain,
+    content => $domains[0],
   }
   file{'/etc/aliases':
     content => $aliases,
