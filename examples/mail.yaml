@@ -39,6 +39,8 @@ mailserver::aliases: |
   clamav: atelier
   root: atelier
   admin: atelier
+mailserver::postfix_options:
+  message_size_limit: 0
 
 mailserver::accounts: >
     atelier@example.net:{PLAIN}password:::::::
