@@ -16,10 +16,10 @@ class mailserver (
   $opendkim_keys = {},
   $postmap_datas = {},
   $postfix_options = {},
+  $virtual_aliases_file_path = "/etc/aliases",
   $relay_domain = undef,
   $transports = "",
 ){
-
 
   validate_array($rmilter_recipients_whitelist)
   validate_rmilter_recipients_whitelist{$rmilter_recipients_whitelist:}
@@ -47,6 +47,13 @@ class mailserver (
       "source" => "http://rspamd.com/apt/gpg.key",
     }
   })
+
+  $all_postfix_options = merge({
+    'max_idle' => '1h',
+    'maximal_queue_lifetime' => '10d',
+    'mailbox_size_limit' => '0',
+    'message_size_limit' => '100240000',
+  }, $postfix_options)
 
   group{'vmail': gid => 2000}
   user{'vmail':
@@ -174,18 +181,21 @@ filters = "chartable,dkim,spf,rbl,emails,surbl,regexp,fuzzy_check,ratelimit,phis
   file{'/etc/mailname':
     content => $domains[0],
   }
-  file{'/etc/aliases':
+
+  file{$virtual_aliases_file_path:
     content => $aliases,
     notify  => Service['postfix'],
     require => Package['postfix'],
   }
-  exec{'/usr/bin/newaliases':
+
+  exec{"/usr/sbin/postmap $virtual_aliases_file_path":
     refreshonly => true,
-    subscribe => File['/etc/aliases'],
-    creates => '/etc/aliases.db',
-    notify => Service['postfix'],
+    subscribe => File[$virtual_aliases_file_path],
+    creates => "${virtual_aliases_file_path}.db",
     require => Package['postfix'],
+    notify  => Service['postfix'],
   }
+
   file{'/etc/postfix/transport':
     content => $transports,
     notify  => Service['postfix'],

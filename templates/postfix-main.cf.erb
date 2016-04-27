@@ -45,7 +45,7 @@ smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
 mail_spool_directory = /var/mail/
 virtual_transport = dovecot
 virtual_mailbox_domains = <%= @domains.join(",") %>
-virtual_alias_maps = hash:/etc/aliases
+virtual_alias_maps = hash:<%= @virtual_aliases_file_path %>
 dovecot_destination_recipient_limit = 1
 
 transport_maps = hash:/etc/postfix/transport
@@ -59,12 +59,6 @@ recipient_delimiter = + -
 inet_interfaces = all
 inet_protocols = all
 
-max_idle = 1h
-maximal_queue_lifetime = 10d
-mailbox_size_limit = 0
-#message_size_limit = 50000000
-message_size_limit = 0
-
 broken_sasl_auth_clients = yes
 smtpd_sasl_auth_enable = yes
 smtpd_sasl_type = dovecot
@@ -75,8 +69,8 @@ smtpd_sasl_local_domain = <%= @domains[0] %>
 disable_vrfy_command = yes
 smtpd_helo_required = yes
 smtpd_helo_restrictions = permit_mynetworks,
-     reject_non_fqdn_hostname,
-     reject_invalid_hostname,
+     reject_non_fqdn_helo_hostname,
+     reject_invalid_helo_hostname,
      permit
 
 smtpd_recipient_restrictions = permit_mynetworks,
@@ -104,10 +98,6 @@ alias_maps = hash:/etc/aliases
 alias_database = hash:/etc/aliases
 recipient_bcc_maps = hash:/etc/postfix/recipient_bcc
 
-smtpd_relay_restrictions = permit_mynetworks,
-     permit_sasl_authenticated,
-     defer_unauth_destination
-
 <% if @relay_domains -%>
 relay_domains = $mydestination, <%= @relay_domains.join(',') %>
 <% else %>
@@ -123,6 +113,7 @@ non_smtpd_milters = inet:127.0.0.1:10030
 milter_protocol = 6
 milter_mail_macros = i {mail_addr} {client_addr} {client_name} {auth_authen}
 
-<% @postfix_options.each do |option| -%>
-    <%= option %>
+# Options that come from the puppet manifest
+<% @all_postfix_options.each do |option, value| -%>
+<%= option %> = <%= value %>
 <% end -%>
