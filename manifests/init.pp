@@ -16,6 +16,7 @@ class mailserver (
   $opendkim_keys = {},
   $postmap_datas = {},
   $postfix_options = {},
+  $postfix_dane_enabled = true,
   $virtual_aliases_file_path = "/etc/aliases",
   $relay_domain = undef,
   $transports = "",

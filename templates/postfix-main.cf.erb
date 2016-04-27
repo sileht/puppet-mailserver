@@ -18,9 +18,11 @@ append_dot_mydomain = no
 
 readme_directory = /usr/share/doc/postfix
 
+<% if @postfix_dane_enabled -%>
 # needed for dane
 smtp_host_lookup = dns
 smtp_dns_support_level = dnssec
+<% end -%>
 
 # TLS parameters
 smtpd_tls_security_level = may
@@ -32,7 +34,11 @@ smtpd_tls_cert_file = <%= @ssl_cert %>
 smtpd_tls_key_file = <%= @ssl_key %>
 smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
 
+<% if @postfix_dane_enabled -%>
 smtp_tls_security_level = dane
+<% else -%>
+smtp_tls_security_level = may
+<% end -%>
 smtp_tls_loglevel = 1
 smtp_tls_cert_file = <%= @ssl_cert %>
 smtp_tls_key_file = <%= @ssl_key %>
