@@ -27,7 +27,7 @@ mailserver::transports: |
 mailserver::rmilter_recipients_whitelist:
    - test-bypass@example.net
 mailserver::postmaster_address: postmaster@example.net
-mailserver::postmapfiles:
+mailserver::postmap_datas:
   sender_access: |
     test-bypass@example.net OK
   recipient_access: |

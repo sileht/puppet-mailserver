@@ -56,6 +56,12 @@ class mailserver (
     'message_size_limit' => '100240000',
   }, $postfix_options)
 
+  $all_postmap_datas = merge({
+    "sender_access" => "",
+    "recipient_access" => "",
+    "recipient_bcc" => "",
+  }, $postmap_datas)
+
   group{'vmail': gid => 2000}
   user{'vmail':
     uid        => 2000,
@@ -203,8 +209,8 @@ filters = "chartable,dkim,spf,rbl,emails,surbl,regexp,fuzzy_check,ratelimit,phis
     require => Package['postfix'],
   }
 
-  $postmap_files = keys($postmap_datas)
-  quick_postmap_files{$postmap_files: datas => $postmap_datas}
+  $postmap_files = keys($all_postmap_datas)
+  quick_postmap_files{$postmap_files: datas => $all_postmap_datas}
 
   file_line{'dovecot-auth':
     path => '/etc/dovecot/conf.d/10-auth.conf',
