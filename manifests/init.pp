@@ -35,7 +35,7 @@ class mailserver (
   validate_hash($postfix_options)
   validate_bool($use_solr_indexer)
   validate_bool($disable_plaintext_auth)
-  validate_int($imap_max_userip_connections)
+  validate_integer($imap_max_userip_connections)
   validate_absolute_path($ssl_ca)
   validate_absolute_path($ssl_cert)
   validate_absolute_path($ssl_key)
