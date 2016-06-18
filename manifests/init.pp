@@ -20,6 +20,7 @@ class mailserver (
   $virtual_aliases_file_path = "/etc/aliases",
   $relay_domain = undef,
   $transports = "",
+  $imap_max_userip_connections = 10,
 ){
 
   validate_array($rmilter_recipients_whitelist)
@@ -34,6 +35,7 @@ class mailserver (
   validate_hash($postfix_options)
   validate_bool($use_solr_indexer)
   validate_bool($disable_plaintext_auth)
+  validate_int($imap_max_userip_connections)
   validate_absolute_path($ssl_ca)
   validate_absolute_path($ssl_cert)
   validate_absolute_path($ssl_key)
@@ -113,7 +115,6 @@ class mailserver (
 
   service{'rmilter':
     ensure     => running,
-    hasrestart => false,  # restart won't work well
     enable     => true,
     tag        => "mailservices",
   }
