@@ -163,7 +163,7 @@ ListenStream=127.0.0.1:10031
   file{"/etc/rspamd/override.d/": ensure => directory }
   file{"/etc/rspamd/override.d/options.inc":
     content => '
-filters = "chartable,dkim,spf,rbl,emails,surbl,regexp,fuzzy_check,ratelimit,phishing,maillist,once_received,forged_recipients,hfilter,ip_score,mime_types,dmarc"
+filters = "chartable,dkim,spf,rbl,emails,surbl,regexp,fuzzy_check,ratelimit,phishing,maillist,once_received,forged_recipients,hfilter,ip_score,mime_types,dmarc,spamassassin"
 ',
     require => Package['rspamd'],
     notify  => Service['rspamd'],
