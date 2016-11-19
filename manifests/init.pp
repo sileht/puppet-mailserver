@@ -125,7 +125,7 @@ class mailserver (
       'ScanPartialMessages'     => 'true',
       'DetectPUA'               => 'true',
       'MaxThreads'              => '60',
-      'StructuredDataDetection' => 'true',
+      'StructuredDataDetection' => 'false',
       'HeuristicScanPrecedence' => 'false',
     },
     require => Package['clamav-daemon'],
