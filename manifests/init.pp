@@ -126,6 +126,7 @@ class mailserver (
       'DetectPUA'               => 'true',
       'MaxThreads'              => '60',
       'StructuredDataDetection' => 'true',
+      'HeuristicScanPrecedence' => 'false',
     },
     require => Package['clamav-daemon'],
     notify => Service['clamav-daemon'],
