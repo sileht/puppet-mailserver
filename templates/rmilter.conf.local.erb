@@ -1,0 +1,26 @@
+
+
+bind_socket = inet:10030@127.0.0.1;
+tempdir = /dev/shm;
+our_networks = 127.0.0.0/8, [::ffff:127.0.0.0]/104,[::1]/128,<%= @mynetworks.join(',') %>;
+whitelist = <%= @rmilter_recipients_whitelist.join(',') %>
+
+spamd {
+    spamd_never_reject = yes;
+    extended_spam_headers = yes;
+}
+
+clamav {
+    servers = "127.0.0.1:10031";
+}
+
+<% if @redis_servers -%>
+redis {
+    servers_id     = <%= @redis_servers.join(',') %>;
+    servers_grey   = <%= @redis_servers.join(',') %>;
+    servers_white  = <%= @redis_servers.join(',') %>;
+    servers_limits = <%= @redis_servers.join(',') %>;
+    servers_spam   = <%= @redis_servers.join(',') %>;
+    id_prefix      = "message_id.";
+    }
+<% end %>

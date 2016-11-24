@@ -21,6 +21,7 @@ class mailserver (
   $relay_domain = undef,
   $transports = "",
   $imap_max_userip_connections = 10,
+  $redis_servers = undef,
 ){
 
   validate_array($rmilter_recipients_whitelist)
@@ -94,7 +95,7 @@ class mailserver (
     'dovecot-imapd', 'dovecot-managesieved', 'dovecot-lmtpd',
     'dovecot-core', 'dovecot-antispam',
     'imapfilter',
-    'rspamd', 'redis-server', 'rmilter',
+    'rspamd', 'rmilter',
     'opendkim-tools',
     'postfix', 'postfix-pcre',
     'libnet-ident-perl', 'libio-socket-ssl-perl', 'libdbi-perl',
@@ -114,14 +115,14 @@ class mailserver (
   }
 
   service{'rmilter':
-    ensure     => running,
-    enable     => true,
-    tag        => "mailservices",
+    ensure => running,
+    enable => true,
+    tag    => "mailservices",
   }
 
   quick_file_lines{'clamd':
-    path                        => "/etc/clamav/clamd.conf",
-    conf                        => {
+    path    => "/etc/clamav/clamd.conf",
+    conf    => {
       'ScanPartialMessages'     => 'true',
       'DetectPUA'               => 'true',
       'MaxThreads'              => '60',
@@ -129,13 +130,13 @@ class mailserver (
       'HeuristicScanPrecedence' => 'false',
     },
     require => Package['clamav-daemon'],
-    notify => Service['clamav-daemon'],
+    notify  => Service['clamav-daemon'],
   }
 
 
   exec {'systemctl-daemon-reload-clamav':
     refreshonly => true,
-    command => '/bin/systemctl daemon-reload',
+    command     => '/bin/systemctl daemon-reload',
   }
 
   file{'/etc/systemd/system/clamav-daemon.socket.d/extend.conf':
@@ -144,16 +145,41 @@ ListenStream=
 SocketUser=clamav
 ListenStream=127.0.0.1:10031
 ',
-    notify => [Exec['systemctl-daemon-reload-clamav'], Service['clamav-daemon']],
+    notify  => [Exec['systemctl-daemon-reload-clamav'], Service['clamav-daemon']],
   }
 
   Exec['systemctl-daemon-reload-clamav'] -> Service['clamav-daemon']
 
 
-  file{"/etc/rmilter.conf":
-    content => template('mailserver/rmilter.conf.erb'),
-    require => Package['rmilter'],
+  file{"/etc/rmilter.conf.local":
+    content => template('mailserver/rmilter.conf.local.erb'),
+    require => [Package['rmilter'], Exec['rmilter-default-conf-back']],
     notify  => Service['rmilter'],
+  }
+  exec{"rmilter-default-conf-back":
+    command => "/bin/mv -f /etc/rmilter.conf.dpkg-dist /etc/rmilter.conf",
+    onlyif  => "/usr/bin/test -e /etc/rmilter.conf.dpkg-dist",
+  }
+
+  if $redis_servers {
+    # TODO(sileht): remove redis conf from here
+    package {'redis-server':
+      tag => 'mailpackages',
+    }
+    service {'redis-server':
+      ensure => running,
+      enable => true,
+      tag    => 'mailservices',
+    }
+    file_line{"redis-bind-all":
+      path              => "/etc/redis/redis.conf",
+      line              => "bind $ipaddress_eth0",
+      match             => "^bind",
+      match_for_absence => true,
+      after             => '^# ~~~~~~~~~~~~~~',
+      notify            => Service['redis-server'],
+    }
+
   }
 
   $opendkim_domains = keys($opendkim_keys)
@@ -165,6 +191,7 @@ ListenStream=127.0.0.1:10031
   file{"/etc/rspamd/override.d/options.inc":
     content => '
 filters = "chartable,dkim,spf,rbl,emails,surbl,regexp,fuzzy_check,ratelimit,phishing,maillist,once_received,forged_recipients,hfilter,ip_score,mime_types,dmarc,spamassassin"
+temp_dir = "/dev/shm"
 ',
     require => Package['rspamd'],
     notify  => Service['rspamd'],
