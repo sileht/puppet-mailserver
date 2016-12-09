@@ -22,6 +22,7 @@ class mailserver (
   $transports = "",
   $imap_max_userip_connections = 10,
   $redis_servers = undef,
+  $clamav = true,
 ){
 
   validate_array($rmilter_recipients_whitelist)
@@ -91,7 +92,6 @@ class mailserver (
   } -> Service <| tag == 'mailservices' |>
 
   package{[
-    'clamav-daemon', 'clamav-unofficial-sigs', 'clamdscan',
     'dovecot-imapd', 'dovecot-managesieved', 'dovecot-lmtpd',
     'dovecot-core', 'dovecot-antispam',
     'imapfilter',
@@ -101,18 +101,36 @@ class mailserver (
     'libnet-ident-perl', 'libio-socket-ssl-perl', 'libdbi-perl',
     ]: tag => 'mailpackages'
   }
-
-  Package <| tag == 'mailpackages' |> -> Service <| tag == 'mailservices' |>
-
-  service{[
-    'postfix', 'dovecot',
-    'rspamd',
-    'clamav-daemon', 'clamav-freshclam'
-  ]:
+  service{['postfix', 'dovecot', 'rspamd']:
     ensure  => running,
     enable  => true,
     tag     => "mailservices",
   }
+
+  if $clamav {
+    package{['clamav-daemon', 'clamav-unofficial-sigs', 'clamdscan']:
+      ensure => present,
+      tag    => 'mailpackages',
+    }
+    service{['clamav-daemon', 'clamav-freshclam']:
+      ensure  => running,
+      enable  => $clamav,
+      tag     => "mailservices",
+    }
+  } else {
+    package{['clamav-daemon', 'clamav-unofficial-sigs', 'clamdscan']:
+      ensure => purged,
+      tag    => 'mailpackages',
+    }
+    service{['clamav-daemon', 'clamav-freshclam']:
+      ensure  => stopped,
+      enable  => false,
+      tag     => "mailservices",
+    }
+  }
+
+  Package <| tag == 'mailpackages' |> -> Service <| tag == 'mailservices' |>
+
 
   service{'rmilter':
     ensure => running,
@@ -120,36 +138,41 @@ class mailserver (
     tag    => "mailservices",
   }
 
-  quick_file_lines{'clamd':
-    path    => "/etc/clamav/clamd.conf",
-    conf    => {
-      'ScanPartialMessages'     => 'true',
-      'DetectPUA'               => 'true',
-      'MaxThreads'              => '60',
-      'StructuredDataDetection' => 'false',
-      'HeuristicScanPrecedence' => 'false',
-    },
-    require => Package['clamav-daemon'],
-    notify  => Service['clamav-daemon'],
-  }
-
-
   exec {'systemctl-daemon-reload-clamav':
     refreshonly => true,
     command     => '/bin/systemctl daemon-reload',
   }
 
-  file{'/etc/systemd/system/clamav-daemon.socket.d/extend.conf':
-    content => '[Socket]
-ListenStream=
-SocketUser=clamav
-ListenStream=127.0.0.1:10031
-',
-    notify  => [Exec['systemctl-daemon-reload-clamav'], Service['clamav-daemon']],
+
+  if $clamav {
+    quick_file_lines{'clamd':
+      path    => "/etc/clamav/clamd.conf",
+      conf    => {
+        'ScanPartialMessages'      => 'true',
+        'DetectPUA'                => 'true',
+        'MaxThreads'               => '1',
+        'StructuredDataDetection'  => 'false',
+        'HeuristicScanPrecedence'  => 'false',
+      },
+      require => Package['clamav-daemon'],
+      notify  => Service['clamav-daemon'],
+    }
+    file{'/etc/systemd/system/clamav-daemon.socket.d/extend.conf':
+      content => '[Socket]
+  ListenStream=
+  SocketUser=clamav
+  ListenStream=127.0.0.1:10031
+  ',
+      notify  => [Exec['systemctl-daemon-reload-clamav'], Service['clamav-daemon']],
+    }
+
+    Exec['systemctl-daemon-reload-clamav'] -> Service['clamav-daemon']
+  } else {
+    file {'/etc/systemd/system/clamav-daemon.socket.d/extend.conf':
+      ensure =>  absent,
+      notify => Exec['systemctl-daemon-reload-clamav'],
+    }
   }
-
-  Exec['systemctl-daemon-reload-clamav'] -> Service['clamav-daemon']
-
 
   file{"/etc/rmilter.conf.local":
     content => template('mailserver/rmilter.conf.local.erb'),

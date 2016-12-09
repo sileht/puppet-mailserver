@@ -10,9 +10,11 @@ spamd {
     extended_spam_headers = yes;
 }
 
+<% if @clamav -%>
 clamav {
     servers = "127.0.0.1:10031";
 }
+<% end %>
 
 <% if @redis_servers -%>
 redis {
@@ -22,5 +24,5 @@ redis {
     servers_limits = <%= @redis_servers.join(',') %>;
     servers_spam   = <%= @redis_servers.join(',') %>;
     id_prefix      = "message_id.";
-    }
+}
 <% end %>
