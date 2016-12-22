@@ -18,6 +18,10 @@ auth_default_realm = <%= @domains[0] %>
 mail_location = maildir:/var/mail/%u
 maildir_very_dirty_syncs = yes   # Assume that only Dovecot accesses cur/ directory.
 
+namespace inbox {
+    separator = .
+}
+
 mail_plugins = $mail_plugins notify replication
 <% if @use_solr_indexer -%>
 mail_plugins = $mail_plugins fts fts_solr
