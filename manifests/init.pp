@@ -13,6 +13,7 @@ class mailserver (
   $disable_plaintext_auth = true,
   $use_solr_indexer = false,
   $rmilter_recipients_whitelist = [],
+  $rmilter_spamd_whitelist = [],
   $opendkim_keys = {},
   $postmap_datas = {},
   $postfix_options = {},
@@ -26,6 +27,7 @@ class mailserver (
 ){
 
   validate_array($rmilter_recipients_whitelist)
+  validate_array($rmilter_spamd_whitelist)
   validate_rmilter_recipients_whitelist{$rmilter_recipients_whitelist:}
   validate_array($mynetworks)
   validate_mynetworks{$mynetworks:}
