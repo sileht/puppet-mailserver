@@ -17,6 +17,10 @@ clamav {
 }
 <% end %>
 
+greylisting {
+    whitelist = 127.0.0.0/8, [::ffff:127.0.0.0]/104, [::1]/128, <%= @mynetworks.join(', ') %>;
+}
+
 <% if @redis_servers -%>
 redis {
     servers_id     = <%= @redis_servers.join(',') %>;
