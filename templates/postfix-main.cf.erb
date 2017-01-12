@@ -98,7 +98,7 @@ smtpd_recipient_restrictions = permit_mynetworks,
      permit
 
 
- smtpd_senders_restrictions = permit_mynetworks,
+smtpd_senders_restrictions = permit_mynetworks,
      permit_sasl_authenticated,
      check_sender_access hash:/etc/postfix/sender_access,
      permit
