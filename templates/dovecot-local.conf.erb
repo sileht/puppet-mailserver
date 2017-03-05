@@ -110,6 +110,7 @@ plugin {
 
     sieve = /var/mail/%u/default.sieve
     sieve_dir = /var/mail/%u/sieve
+    sieve_extensions = +editheader
 
     mail_replica = tcps:<%= @sync_dest %>:10100
 
