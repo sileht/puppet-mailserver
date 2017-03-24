@@ -18,7 +18,7 @@ append_dot_mydomain = no
 
 readme_directory = /usr/share/doc/postfix
 
-<% if @postfix_dane_enabled -%>
+<% if scope['mailserver::postfix_dane_enabled'] -%>
 # needed for dane
 smtp_host_lookup = dns
 smtp_dns_support_level = dnssec
@@ -30,18 +30,18 @@ smtpd_tls_loglevel = 1
 smtpd_tls_auth_only = yes
 # smtpd_tls_ask_ccert = yes # cause some trouble with hotmail servers and some other
 smtpd_tls_received_header = yes
-smtpd_tls_cert_file = <%= @ssl_cert %>
-smtpd_tls_key_file = <%= @ssl_key %>
+smtpd_tls_cert_file = <%= scope['mailserver::ssl_cert'] %>
+smtpd_tls_key_file = <%= scope['mailserver::ssl_key'] %>
 smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
 
-<% if @postfix_dane_enabled -%>
+<% if scope['mailserver::postfix_dane_enabled'] -%>
 smtp_tls_security_level = dane
 <% else -%>
 smtp_tls_security_level = may
 <% end -%>
 smtp_tls_loglevel = 1
-smtp_tls_cert_file = <%= @ssl_cert %>
-smtp_tls_key_file = <%= @ssl_key %>
+smtp_tls_cert_file = <%= scope['mailserver::ssl_cert'] %>
+smtp_tls_key_file = <%= scope['mailserver::ssl_key'] %>
 smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
 
 # See /usr/share/doc/postfix/TLS_README.gz in the postfix-doc package for
@@ -50,8 +50,8 @@ smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
 # use maildir
 mail_spool_directory = /var/mail/
 virtual_transport = dovecot
-virtual_mailbox_domains = <%= @domains.join(",") %>
-virtual_alias_maps = hash:<%= @virtual_aliases_file_path %>
+virtual_mailbox_domains = <%= scope['mailserver::domains'].join(",") %>
+virtual_alias_maps = hash:<%= scope['mailserver::virtual_aliases_file_path'] %>
 dovecot_destination_recipient_limit = 1
 
 transport_maps = hash:/etc/postfix/transport
@@ -59,8 +59,8 @@ transport_maps = hash:/etc/postfix/transport
 myhostname = <%= scope['::fqdn'] %>
 myorigin = /etc/mailname
 mydestination = <%= scope['::hostname'] %>, <%= scope['::fqdn'] %>, localhost
-relayhost = 
-mynetworks = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128 <%= @mynetworks.join(' ') %>
+relayhost =
+mynetworks = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128 <%= scope['mailserver::mynetworks'].join(' ') %>
 recipient_delimiter = + -
 inet_interfaces = all
 inet_protocols = all
@@ -70,7 +70,7 @@ smtpd_sasl_auth_enable = yes
 smtpd_sasl_type = dovecot
 smtpd_sasl_path = private/auth
 smtpd_sasl_security_options = noanonymous
-smtpd_sasl_local_domain = <%= @domains[0] %>
+smtpd_sasl_local_domain = <%= scope['mailserver::domains'][0] %>
 
 disable_vrfy_command = yes
 smtpd_helo_required = yes
@@ -110,8 +110,8 @@ alias_maps = hash:/etc/aliases
 alias_database = hash:/etc/aliases
 recipient_bcc_maps = hash:/etc/postfix/recipient_bcc
 
-<% if @relay_domains -%>
-relay_domains = $mydestination, <%= @relay_domains.join(',') %>
+<% if scope['mailserver::relay_domains'] -%>
+relay_domains = $mydestination, <%= scope['mailserver::relay_domains'].join(',') %>
 <% else %>
 relay_domains =
 <% end -%>
@@ -126,6 +126,6 @@ milter_protocol = 6
 milter_mail_macros = i {mail_addr} {client_addr} {client_name} {auth_authen}
 
 # Options that come from the puppet manifest
-<% @all_postfix_options.each do |option, value| -%>
+<% scope['mailserver::all_postfix_options'].each do |option, value| -%>
 <%= option %> = <%= value %>
 <% end -%>

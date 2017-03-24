@@ -1,19 +1,19 @@
 ssl=required
 ssl_protocols = !SSLv2 !SSLv3
-ssl_ca = <<%= @ssl_ca %>
-ssl_cert = <<%= @ssl_cert %>
-ssl_key = <<%= @ssl_key %>
+ssl_ca = <<%= scope['mailserver::ssl_ca'] %>
+ssl_cert = <<%= scope['mailserver::ssl_cert'] %>
+ssl_key = <<%= scope['mailserver::ssl_key'] %>
 ssl_client_ca_dir = /etc/ssl/certs/
-ssl_client_ca_file = <%= @ssl_ca %>
+ssl_client_ca_file = <%= scope['mailserver::ssl_ca'] %>
 
-login_trusted_networks = 127.0.0.1/8,<%= @mynetworks.join(',') %>
-<% if @disable_plaintext_auth -%>
+login_trusted_networks = 127.0.0.1/8,<%= scope['mailserver::mynetworks'].join(',') %>
+<% if scope['mailserver::disable_plaintext_auth'] -%>
 disable_plaintext_auth = yes
 <% else %>
 disable_plaintext_auth = no
 <% end -%>
 
-auth_default_realm = <%= @domains[0] %>
+auth_default_realm = <%= scope['mailserver::domains'][0] %>
 
 mail_location = maildir:/var/mail/%u
 maildir_very_dirty_syncs = yes   # Assume that only Dovecot accesses cur/ directory.
@@ -23,7 +23,7 @@ namespace inbox {
 }
 
 mail_plugins = $mail_plugins notify replication
-<% if @use_solr_indexer -%>
+<% if scope['mailserver::use_solr_indexer'] -%>
 mail_plugins = $mail_plugins fts fts_solr
 <% end -%>
 
@@ -42,14 +42,14 @@ userdb {
 protocol imap {
     mail_plugins = $mail_plugins antispam
     imap_idle_notify_interval = 60 mins
-    mail_max_userip_connections = <%= @imap_max_userip_connections %> 
+    mail_max_userip_connections = <%= scope['mailserver::imap_max_userip_connections'] %> 
 }
 protocol lmtp {
     mail_plugins = $mail_plugins sieve
 }
 protocol lda {
     mail_plugins = $mail_plugins sieve
-    postmaster_address = <%= @postmaster_address %>
+    postmaster_address = <%= scope['mailserver::postmaster_address'] %>
 }
 lda_mailbox_autocreate = yes
 lda_mailbox_autosubscribe = yes
@@ -91,7 +91,7 @@ service aggregator {
     }
 }
 
-doveadm_password = <%= @doveadm_password %>
+doveadm_password = <%= scope['mailserver::doveadm_password'] %>
 doveadm_port = 10100
 service doveadm {
     inet_listener {
@@ -102,7 +102,7 @@ service doveadm {
 }
 
 plugin {
-<% if @use_solr_indexer -%>
+<% if scope['mailserver::use_solr_indexer'] -%>
     fts = solr
     fts_autoindex = yes
     fts_solr = break-imap-search url=http://localhost:8080/solr/
@@ -112,7 +112,7 @@ plugin {
     sieve_dir = /var/mail/%u/sieve
     sieve_extensions = +editheader
 
-    mail_replica = tcps:<%= @sync_dest %>:10100
+    mail_replica = tcps:<%= scope['mailserver::sync_dest'] %>:10100
 
     antispam_debug_target = syslog
     #antispam_verbose_debug = 1

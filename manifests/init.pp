@@ -19,7 +19,7 @@ class mailserver (
   $postfix_options = {},
   $postfix_dane_enabled = true,
   $virtual_aliases_file_path = "/etc/aliases",
-  $relay_domain = undef,
+  $relay_domains = undef,
   $transports = "",
   $imap_max_userip_connections = 10,
   $redis_servers = undef,
