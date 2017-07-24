@@ -1,5 +1,5 @@
 ssl=required
-ssl_protocols = !SSLv2 !SSLv3
+# ssl_protocols = !SSLv2 !SSLv3
 ssl_ca = <<%= scope['mailserver::ssl_ca'] %>
 ssl_cert = <<%= scope['mailserver::ssl_cert'] %>
 ssl_key = <<%= scope['mailserver::ssl_key'] %>
