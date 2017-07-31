@@ -292,24 +292,24 @@ temp_dir = "/dev/shm"
   }
 
   if $use_solr_indexer {
-    package{['solr-jetty', 'jetty8', 'dovecot-solr']:
+    package{['solr-jetty', 'jetty9', 'dovecot-solr']:
       notify => Service['dovecot'],
       require => Package['dovecot-core'],
     }
-    service{'jetty8':
+    service{'jetty9':
       ensure => running,
-      require => [Package['jetty8'], Package['dovecot-solr'], Package['solr-jetty']],
+      require => [Package['jetty9'], Package['dovecot-solr'], Package['solr-jetty']],
     }
-    quick_file_lines{'jetty8':
-      path    => '/etc/default/jetty8',
+    quick_file_lines{'jetty9':
+      path    => '/etc/default/jetty9',
       conf    => {'NO_START' => '0'},
-      notify  => Service['jetty8'],
+      notify  => Service['jetty9'],
       sep     => '=',
     }
     file{"/etc/solr/conf/schema.xml":
       ensure => "/usr/share/dovecot/solr-schema.xml",
-      notify => Service['jetty8'],
-      require => [Package['jetty8'], Package['dovecot-solr'], Package['solr-jetty']],
+      notify => Service['jetty9'],
+      require => [Package['jetty9'], Package['dovecot-solr'], Package['solr-jetty']],
     }
 
     cron{'solr-optimize':
@@ -320,7 +320,7 @@ temp_dir = "/dev/shm"
       command => "curl -s http://localhost:8080/solr/update?commit=true > /dev/null",
     }
   } else {
-    package{['solr-jetty', 'jetty8', 'dovecot-solr']:
+    package{['solr-jetty', 'jetty9', 'dovecot-solr']:
       ensure => purged,
     }
   }
