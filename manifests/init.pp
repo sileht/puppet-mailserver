@@ -1,48 +1,34 @@
 
 class mailserver (
-  $domains,
-  $mynetworks,
+  Array[String] $domains,
+  # Array[Stdlib::Compat::Ip_Address] $mynetworks,
+  Array[String] $mynetworks,
   $accounts,
   $aliases,
-  $doveadm_password,
-  $postmaster_address,
-  $sync_dest,
-  $ssl_ca,
-  $ssl_cert,
-  $ssl_key,
-  $disable_plaintext_auth = true,
-  $use_solr_indexer = false,
-  $rmilter_recipients_whitelist = [],
-  $rmilter_spamd_whitelist = [],
-  $opendkim_keys = {},
-  $postmap_datas = {},
-  $postfix_options = {},
-  $postfix_dane_enabled = true,
-  $virtual_aliases_file_path = "/etc/aliases",
+  String $doveadm_password,
+  String $postmaster_address,
+  String $sync_dest,
+  Stdlib::Compat::Absolute_Path $ssl_ca,
+  Stdlib::Compat::Absolute_Path $ssl_cert,
+  Stdlib::Compat::Absolute_Path $ssl_key,
+  Boolean $disable_plaintext_auth = true,
+  Boolean $use_solr_indexer = false,
+  Array[String] $rmilter_recipients_whitelist = [],
+  Array[String] $rmilter_spamd_whitelist = [],
+  Hash $opendkim_keys = {},
+  Hash $postmap_datas = {},
+  Hash $postfix_options = {},
+  Boolean $postfix_dane_enabled = true,
+  Stdlib::Compat::Absolute_Path $virtual_aliases_file_path = "/etc/aliases",
   $relay_domains = undef,
-  $transports = "",
-  $imap_max_userip_connections = 10,
-  $redis_servers = undef,
-  $clamav = true,
+  String $transports = "",
+  Integer $imap_max_userip_connections = 10,
+  Array[String] $redis_servers = undef,
+  Boolean $clamav = true,
 ){
 
-  validate_array($rmilter_recipients_whitelist)
-  validate_array($rmilter_spamd_whitelist)
   validate_rmilter_recipients_whitelist{$rmilter_recipients_whitelist:}
-  validate_array($mynetworks)
-  validate_mynetworks{$mynetworks:}
-  validate_array($domains)
-  validate_string($postmaster_address)
-  validate_re($postmaster_address, '^.*@.*\..*')
-  validate_hash($opendkim_keys)
-  validate_hash($postmap_datas)
-  validate_hash($postfix_options)
-  validate_bool($use_solr_indexer)
-  validate_bool($disable_plaintext_auth)
-  validate_integer($imap_max_userip_connections)
-  validate_absolute_path($ssl_ca)
-  validate_absolute_path($ssl_cert)
-  validate_absolute_path($ssl_key)
+  validate_legacy("String", "validate_re", $postmaster_address, ['^.*@.*\..*'])
 
   ensure_resource("apt::source", "rspamd", {
     "location" => "http://rspamd.com/apt-stable/",
@@ -389,10 +375,7 @@ define opendkim_key($keys){
   }
 }
 
-define validate_mynetworks(){
-    validate_ip_address($name)
-}
 
 define validate_rmilter_recipients_whitelist(){
-  validate_re($name, '^.*@.*\..*')
+  validate_legacy("String", "validate_re", $name, ['^.*@.*\..*'])
 }
