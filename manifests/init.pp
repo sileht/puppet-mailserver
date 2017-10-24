@@ -35,10 +35,10 @@ class mailserver (
     "repos" => "main",
     "release" => $::lsbdistcodename,
     "include" => {"src" => false},
-    "key" => {
-      "id" => "3FA347D5E599BE4595CA2576FFA232EDBF21E25E",
-      "source" => "http://rspamd.com/apt/gpg.key",
-    }
+    #"key" => {
+    #  "id" => "3FA347D5E599BE4595CA2576FFA232EDBF21E25E",
+    #  "source" => "http://rspamd.com/apt/gpg.key",
+    #}
   })
 
   $all_postfix_options = merge({
@@ -277,25 +277,22 @@ temp_dir = "/dev/shm"
 ",
   }
 
+  package{['solr-jetty', 'jetty9']:
+    ensure => purged,
+  }
   if $use_solr_indexer {
-    package{['solr-jetty', 'jetty9', 'dovecot-solr']:
+    package{['solr-tomcat', 'tomcat8', 'dovecot-solr']:
       notify => Service['dovecot'],
       require => Package['dovecot-core'],
     }
-    service{'jetty9':
+    service{'tomcat8':
       ensure => running,
-      require => [Package['jetty9'], Package['dovecot-solr'], Package['solr-jetty']],
-    }
-    quick_file_lines{'jetty9':
-      path    => '/etc/default/jetty9',
-      conf    => {'NO_START' => '0'},
-      notify  => Service['jetty9'],
-      sep     => '=',
+      require => [Package['tomcat8'], Package['dovecot-solr'], Package['solr-tomcat']],
     }
     file{"/etc/solr/conf/schema.xml":
       ensure => "/usr/share/dovecot/solr-schema.xml",
-      notify => Service['jetty9'],
-      require => [Package['jetty9'], Package['dovecot-solr'], Package['solr-jetty']],
+      notify => Service['tomcat8'],
+      require => [Package['tomcat8'], Package['dovecot-solr'], Package['solr-tomcat']],
     }
 
     cron{'solr-optimize':
@@ -306,7 +303,7 @@ temp_dir = "/dev/shm"
       command => "curl -s http://localhost:8080/solr/update?commit=true > /dev/null",
     }
   } else {
-    package{['solr-jetty', 'jetty9', 'dovecot-solr']:
+    package{['solr-tomcat', 'dovecot-solr']:
       ensure => purged,
     }
   }
