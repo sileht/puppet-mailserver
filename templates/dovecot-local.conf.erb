@@ -22,13 +22,13 @@ namespace inbox {
     separator = .
 }
 
-namespace virtual {
-    prefix = tags.
-    separator = .
-    location = virtual:/var/mail/tags
-}
+#namespace virtual {
+#    prefix = tags.
+#    separator = .
+#    location = virtual:/var/mail/tags
+#}
 
-mail_plugins = $mail_plugins notify replication virtual
+mail_plugins = $mail_plugins notify replication # virtual
 <% if scope['mailserver::use_solr_indexer'] -%>
 mail_plugins = $mail_plugins fts fts_solr
 <% end -%>
