@@ -19,6 +19,7 @@ class mailserver (
   Hash $postmap_datas = {},
   Hash $postfix_options = {},
   Boolean $postfix_dane_enabled = true,
+  Boolean $greylisting = false,
   Stdlib::Compat::Absolute_Path $virtual_aliases_file_path = "/etc/aliases",
   $relay_domains = undef,
   String $transports = "",

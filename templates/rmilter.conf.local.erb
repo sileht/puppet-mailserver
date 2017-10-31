@@ -8,7 +8,8 @@ whitelist = <%= scope['mailserver::rmilter_recipients_whitelist'].join(', ') %>
 spamd {
     spamd_never_reject = yes;
     extended_spam_headers = yes;
-    whitelist = 127.0.0.0/8, [::ffff:127.0.0.0]/104, [::1]/128, <%= scope['mailserver::mynetworks'].join(', ') %>, "<%= scope['mailserver::rmilter_spamd_whitelist'].join('", "') %>";
+    whitelist = 127.0.0.0/8, [::ffff:127.0.0.0]/104, [::1]/128, <%= scope['mailserver::mynetworks'].join(', ') %>;
+    # , "<%= scope['mailserver::rmilter_spamd_whitelist'].join('", "') %>";
 }
 
 <% if scope['mailserver::clamav'] -%>
@@ -18,6 +19,11 @@ clamav {
 <% end %>
 
 greylisting {
+    <% if scope['mailserver::greylisting'] -%>
+        enable = true;
+    <% else %>
+        enable = false;
+    <% end %>
     whitelist = 127.0.0.0/8, [::ffff:127.0.0.0]/104, [::1]/128, <%= scope['mailserver::mynetworks'].join(', ') %>;
 }
 
