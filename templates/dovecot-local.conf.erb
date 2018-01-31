@@ -107,6 +107,13 @@ service doveadm {
     vsz_limit = 1024 MB
 }
 
+service stats {
+    inet_listener {
+        port = 24242
+        address = 127.0.9.1
+    }
+}
+
 plugin {
 <% if scope['mailserver::use_solr_indexer'] -%>
     fts = solr
