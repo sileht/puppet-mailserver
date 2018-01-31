@@ -185,7 +185,7 @@ class mailserver (
     }
     file_line{"redis-bind-all":
       path              => "/etc/redis/redis.conf",
-      line              => "bind $ipaddress_eth0",
+      line              => "bind $ipaddress_eth0 127.0.0.1",
       match             => "^bind",
       match_for_absence => true,
       after             => '^# ~~~~~~~~~~~~~~',
