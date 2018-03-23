@@ -82,13 +82,16 @@ class mailserver (
 
   package{[
     'dovecot-imapd', 'dovecot-managesieved', 'dovecot-lmtpd',
-    'dovecot-core', 'dovecot-antispam',
+    'dovecot-core',
     'imapfilter',
     'rspamd', 'rmilter',
     'opendkim-tools',
     'postfix', 'postfix-pcre',
     'libnet-ident-perl', 'libio-socket-ssl-perl', 'libdbi-perl',
     ]: tag => 'mailpackages'
+  }
+  package{'dovecot-antispam':
+    ensure => absent,
   }
   service{['postfix', 'dovecot', 'rspamd']:
     ensure  => running,

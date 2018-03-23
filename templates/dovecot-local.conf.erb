@@ -46,7 +46,7 @@ userdb {
 }
 
 protocol imap {
-    mail_plugins = $mail_plugins antispam
+    mail_plugins = $mail_plugins # antispam
     imap_idle_notify_interval = 60 mins
     mail_max_userip_connections = <%= scope['mailserver::imap_max_userip_connections'] %>
 }
@@ -127,14 +127,14 @@ plugin {
 
     mail_replica = tcps:<%= scope['mailserver::sync_dest'] %>:10100
 
-    antispam_debug_target = syslog
-    #antispam_verbose_debug = 1
-    antispam_backend = pipe
-    antispam_trash = Trash
-    antispam_spam = Junk;Spam;SPAM
-    antispam_allow_append_to_spam = "no"
-    antispam_pipe_program = /usr/bin/rspamc
-    antispam_pipe_program_spam_arg = learn_spam
-    antispam_pipe_program_notspam_arg = learn_ham
-    antispam_mail_sendmail_args = -h;localhost:11334;-P;q1
+#    antispam_debug_target = syslog
+#    #antispam_verbose_debug = 1
+#    antispam_backend = pipe
+#    antispam_trash = Trash
+#    antispam_spam = Junk;Spam;SPAM
+#    antispam_allow_append_to_spam = "no"
+#    antispam_pipe_program = /usr/bin/rspamc
+#    antispam_pipe_program_spam_arg = learn_spam
+#    antispam_pipe_program_notspam_arg = learn_ham
+#    antispam_mail_sendmail_args = -h;localhost:11334;-P;q1
 }
