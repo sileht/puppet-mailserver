@@ -4,4 +4,4 @@ if environment :matches "imap.email" "*" {
   set "email" "${1}";
 }
 
-pipe :copy "learn-spam.sh" [ "${email}" 
+pipe :copy "learn-spam.sh" [ "${email}" ];

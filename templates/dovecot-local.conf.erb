@@ -50,15 +50,26 @@ protocol imap {
     imap_idle_notify_interval = 60 mins
     mail_max_userip_connections = <%= scope['mailserver::imap_max_userip_connections'] %>
 }
+
 protocol lmtp {
-    mail_plugins = $mail_plugins sieve
-}
-protocol lda {
     mail_plugins = $mail_plugins sieve
     postmaster_address = <%= scope['mailserver::postmaster_address'] %>
 }
-lda_mailbox_autocreate = yes
-lda_mailbox_autosubscribe = yes
+
+#protocol lda {
+#    mail_plugins = $mail_plugins sieve
+#    postmaster_address = <%= scope['mailserver::postmaster_address'] %>
+#}
+#lda_mailbox_autocreate = yes
+#lda_mailbox_autosubscribe = yes
+service lmtp {
+    unix_listener /var/spool/postfix/private/dovecot-lmtp {
+        group = postfix
+        mode = 0600
+        user = postfix
+    }
+}
+recipient_delimiter = -
 
 service auth {
     unix_listener /var/spool/postfix/private/auth {
@@ -128,7 +139,6 @@ plugin {
     sieve_plugins = sieve_imapsieve sieve_extprograms
 
     mail_replica = tcps:<%= scope['mailserver::sync_dest'] %>:10100
-
 
     # From elsewhere to Junk folder
     imapsieve_mailbox1_name = Junk

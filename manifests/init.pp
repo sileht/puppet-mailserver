@@ -284,22 +284,22 @@ servers = <%= scope['mailserver::redis_servers'].join(',') %>;
     ensure => directory,
   }
   file{'/etc/dovecot/sieve/learn-ham.sh':
-    source => "puppet://modules/mailserver/learn-ham.sh",
-    mode   =>  "0755",
+    content => template("mailserver/learn-ham.sh"),
+    mode    =>  "0755",
   }
   file{'/etc/dovecot/sieve/learn-spam.sh':
-    source => "puppet://modules/mailserver/learn-spam.sh",
-    mode   =>  "0755",
+    content => template("mailserver/learn-spam.sh"),
+    mode    =>  "0755",
   }
   file{'/etc/dovecot/sieve/report-ham.sieve':
-    source => "puppet://modules/mailserver/report-ham.sieve",
+    content => template("mailserver/report-ham.sieve"),
   }
   exec{"/usr/bin/sievec /etc/dovecot/sieve/report-ham.sieve":
     refreshonly => true,
     subscribe   =>  File['/etc/dovecot/sieve/report-ham.sieve']
   }
   file{'/etc/dovecot/sieve/report-spam.sieve':
-    source => "puppet://modules/mailserver/report-spam.sieve",
+    content => template("mailserver/report-spam.sieve"),
   }
   exec{"/usr/bin/sievec /etc/dovecot/sieve/report-spam.sieve":
     refreshonly => true,
