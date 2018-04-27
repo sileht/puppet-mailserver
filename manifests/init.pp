@@ -205,8 +205,8 @@ class mailserver (
   file{"/etc/rspamd/override.d/": ensure => directory }
   file{"/etc/rspamd/override.d/options.inc":
     content => '
-filters = "chartable,dkim,spf,rbl,emails,surbl,regexp,fuzzy_check,ratelimit,phishing,maillist,once_received,forged_recipients,hfilter,ip_score,mime_types,dmarc,spamassassin"
-temp_dir = "/dev/shm"
+filters = "chartable,dkim,spf,surbl,regexp,fuzzy_check";
+temp_dir = "/dev/shm";
 ',
     require => Package['rspamd'],
     notify  => Service['rspamd'],
@@ -279,14 +279,40 @@ servers = <%= scope['mailserver::redis_servers'].join(',') %>;
     require => Package['dovecot-core'],
   }
 
+
+  file{'/etc/dovecot/sieve':
+    ensure => directory,
+  }
+  file{'/etc/dovecot/sieve/learn-ham.sh':
+    source => "puppet://modules/mailserver/learn-ham.sh",
+    mode   =>  "0755",
+  }
+  file{'/etc/dovecot/sieve/learn-spam.sh':
+    source => "puppet://modules/mailserver/learn-spam.sh",
+    mode   =>  "0755",
+  }
+  file{'/etc/dovecot/sieve/report-ham.sieve':
+    source => "puppet://modules/mailserver/report-ham.sieve",
+  }
+  exec{"/usr/bin/sievec /etc/dovecot/sieve/report-ham.sieve":
+    refreshonly => true,
+    subscribe   =>  File['/etc/dovecot/sieve/report-ham.sieve']
+  }
+  file{'/etc/dovecot/sieve/report-spam.sieve':
+    source => "puppet://modules/mailserver/report-spam.sieve",
+  }
+  exec{"/usr/bin/sievec /etc/dovecot/sieve/report-spam.sieve":
+    refreshonly => true,
+    subscribe   =>  File['/etc/dovecot/sieve/report-spam.sieve']
+  }
+
   file{'/etc/dovecot/account.db':
     content => $accounts,
     notify => Service['dovecot'],
     require => Package['dovecot-core'],
   }
   file{'/etc/sudoers.d/dovecot':
-    content => "vmail   ALL= (debian-spamd) NOPASSWD: /etc/dovecot/sa-learn-pipe.sh
-",
+    ensure => absent,
   }
 
   package{['solr-jetty', 'jetty9']:
