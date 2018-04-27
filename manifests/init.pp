@@ -211,6 +211,14 @@ temp_dir = "/dev/shm"
     require => Package['rspamd'],
     notify  => Service['rspamd'],
   }
+  file{"/etc/rspamd/local.d/": ensure => directory }
+  file{"/etc/rspamd/local.d/redis.conf":
+    content => inline_template("
+servers = <%= scope['mailserver::redis_servers'].join(',') %>;
+"),
+    require => Package['rspamd'],
+    notify  => Service['rspamd'],
+  }
 
   file{"/etc/rspamd/lua":
     ensure => directory
