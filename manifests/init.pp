@@ -202,7 +202,18 @@ class mailserver (
     keys => $opendkim_keys
   }
 
+  file{"/etc/rspamd/local.d/": ensure => directory }
   file{"/etc/rspamd/override.d/": ensure => directory }
+  file{"/etc/rspamd/local.d/actions.conf":
+    content => '
+actions {
+    add_header = 10;
+}
+',
+    require => Package['rspamd'],
+    notify  => Service['rspamd'],
+  }
+
   file{"/etc/rspamd/override.d/options.inc":
     content => '
 filters = "chartable,dkim,spf,surbl,regexp,fuzzy_check";
@@ -211,7 +222,6 @@ temp_dir = "/dev/shm";
     require => Package['rspamd'],
     notify  => Service['rspamd'],
   }
-  file{"/etc/rspamd/local.d/": ensure => directory }
   file{"/etc/rspamd/local.d/redis.conf":
     content => inline_template("
 servers = <%= scope['mailserver::redis_servers'].join(',') %>;
