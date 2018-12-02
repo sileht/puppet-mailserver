@@ -224,7 +224,7 @@ temp_dir = "/dev/shm";
   }
   file{"/etc/rspamd/local.d/redis.conf":
     content => inline_template("
-servers = <%= scope['mailserver::redis_servers'].join(',') %>;
+servers = \"<%= scope['mailserver::redis_servers'].join(',') %>\";
 "),
     require => Package['rspamd'],
     notify  => Service['rspamd'],
